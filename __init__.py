@@ -185,6 +185,7 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
 # the above initialize self code will find the ip.json file and load the MagicMirror ip address. If it is not the
 # correct address, or if the MagicMirror is not accessible the initilize self code will prompt the user to check the ip address
 
+#VOICE SET IP ADDRESS
     @intent_handler(IntentBuilder('SetMirrorIpAddress').require('SetIpKeywords').optionally('IpAddress'))
     def handle_Set_Ip_command(self, message):
         keywords = message.data.get('SetIpKeywords')
@@ -201,9 +202,9 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
             self.speak('Im sorry that is not a valid ip address. please try again', expect_response=True)
 
 
-
-# This code builds the SystemActionIntent which are commands that are not directed at a specific module
-
+#!!! = not include for now
+# !!! This code builds the SystemActionIntent which are commands that are not directed at a specific module
+"""
     @intent_handler(IntentBuilder('SystemActionIntent').require('SystemActionKeywords').require('SystemKeywords'))
     def handle_System_command(self, message):
         if self.connectionStatus == 'connected':
@@ -264,9 +265,10 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
                 self.speak('There was an error processing your request. The error was caused by', reason)
         else:
             self.handle_not_connected()
+"""
 
-# This intent will have mycroft read the installed modules 'mycroftname' so that the user knows which mdules are installed
-
+# !!! This intent will have mycroft read the installed modules 'mycroftname' so that the user knows which mdules are installed
+"""
     @intent_handler(IntentBuilder('ListInstalledModulesIntent').require('ListInstalledKeywords').require('SingleModuleKeywords'))
     def handle_list_installed_modules_command(self, message):
         if self.connectionStatus == 'connected':
@@ -280,10 +282,12 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
             self.speak('The currently installed modules are{}'.format(installed_modules))
         else:
             self.handle_not_connected()
+"""
 
-# This intent handles change page commands to be used with the MMM-pages module. The MMM-pages module must be installed
+# PAGE
+# !!! This intent handles change page commands to be used with the MMM-pages module. The MMM-pages module must be installed
 # for this intent to work. Find it on github @ https://github.com/edward-shen/MMM-pages
-
+"""
     @intent_handler(IntentBuilder('ChangePagesIntent').require('PageActionKeywords').require('PageKeywords'))
     def handle_change_pages_command(self, message):
         if self.connectionStatus == 'connected':
@@ -322,10 +326,12 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
                 self.speak('There was an error processing your request. The error was caused by', reason)
         else:
             self.handle_not_connected()
+"""
 
-# This intent handles swipe commands to be used with the MMM-pages module. The MMM-pages module must be installed
+
+# !!! This intent handles swipe commands to be used with the MMM-pages module. The MMM-pages module must be installed
 # for the swipe intent to work. Find it on github @ https://github.com/edward-shen/MMM-pages
-
+"""
     @intent_handler(IntentBuilder('HandleSwipeIntent').require('SwipeActionKeywords').require('LeftRightKeywords'))
     def handle_pages_command(self, message):
         if self.connectionStatus == 'connected':
@@ -347,11 +353,12 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
                 self.speak('There was an error processing your request. The error was caused by', reason)
         else:
             self.handle_not_connected()
+"""
 
-# This intent handles a number of different user utterances for the brightness value, including
+# !!! This intent handles a number of different user utterances for the brightness value, including
 # numbers, numbers followed by %, numbers as words, numbers as words including the word percent.
 # Not all references need to include (%|percent), this can be a value between 10 - 200
-
+"""
     @intent_handler(IntentBuilder('AdjustBrightnessIntent').require('BrightnessActionKeywords').require('BrightnessValueKeywords'))
     def handle_adjust_brightness_command(self, message):
         if self.connectionStatus == 'connected':
@@ -406,30 +413,52 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
                 self.speak('There was an error processing your request. The error was caused by', reason)
         else:
             self.handle_not_connected()
+"""
 
-    # This intent handles commands directed at specific modules. Commands include: hide
-    #  show, display, conceal, install, add, turn on, turn off, update.
-    # TODO The add module needs to be changed to 'add' the recently installed module's configuration
-    # to the config.js of the MagicMirror. this is the intended functionallity. currently it is
-    # set up to be another way to say install the module.
+
+# This intent handles commands directed at specific modules. Commands include: hide
+#  show, display, conceal, install, add, turn on, turn off, update.
+# TODO The add module needs to be changed to 'add' the recently installed module's configuration
+# to the config.js of the MagicMirror. this is the intended functionallity. currently it is
+# set up to be another way to say install the module.
 
     @intent_handler(IntentBuilder('ModuleActionIntent').require('ModuleActionKeywords').require('ModuleKeywords'))
     def handle_module_command(self, message):
-        if self.connectionStatus == 'connected':
+        #if self.connectionStatus == 'connected':
             module_action = message.data.get('ModuleActionKeywords')
-            if module_action in ('hide', 'conceal', 'turn off'):
-                module_action = 'HIDE'
-            if module_action in ('show', 'display', 'turn on'):
-                module_action = 'SHOW'
+
+            if self.language == 'th-th':
+                if module_action in ('ซ่อน', 'ปิด'):
+                    module_action = 'HIDE'
+                if module_action in ('โชว์', 'เปิด', 'แสดง'):
+                    module_action = 'SHOW'
+            if self.language == 'en-us':
+                if module_action in ('hide', 'conceal', 'turn off'):
+                    module_action = 'HIDE'
+                if module_action in ('show', 'display', 'turn on'):
+                    module_action = 'SHOW'
 
             module = message.data.get('ModuleKeywords')
             data = self.moduleData
             for item in data['moduleData']:
-                if module == item['mycroftname']:
-                    module_id = item['identifier']
-                    module_url = item['URL']
-                    module_name =item['name']
+                if self.language == 'th-th':
+                    if module == item['mycroftnamethai']:
+                        module_id = item['identifier']
+                        module_url = item['URL']
+                        module_name =item['name']
+                if self.language == 'en-us':
+                    if module == item['mycroftname']:
+                        module_id = item['identifier']
+                        module_url = item['URL']
+                        module_name =item['name']
+                  
+                
 
+
+            module_action = module_action.upper()
+            payload = {'action': module_action, 'module': module_id}
+
+            """
             if module_action in ('HIDE', 'SHOW'):
                 module_action = module_action.upper()
                 payload = {'action': module_action, 'module': module_id}
@@ -439,6 +468,7 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
             if module_action == 'update':
                 module_action = module_action.upper()
                 payload = {'action': module_action, 'module': module_name}
+            """
 
             r = requests.get(url=self.url, params=payload)
             status = r.json()
@@ -449,9 +479,11 @@ class MagicMirrorVoiceControlSkill(MycroftSkill):
                 reason = status['reason']
                 reason = reason.replace('_', ' ')
                 self.speak_dialog('No.Such.Module')
-        else:
-            self.handle_not_connected()
+        #else:
+            #self.handle_not_connected()
 
+
+        @intent_handler()
 
 
     def stop(self):
